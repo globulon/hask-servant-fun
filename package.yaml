@@ -24,6 +24,13 @@ dependencies:
 
 library:
   source-dirs: src
+  dependencies:
+    - text
+    - time
+    - aeson
+    - servant
+    - wai
+    - warp
 
 executables:
   simple-user-exe:
@@ -34,7 +41,7 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - simple-user
+      - simple-user
 
 tests:
   simple-user-test:
@@ -46,3 +53,5 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - simple-user
+    - hspec
+    - QuickCheck
