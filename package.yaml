@@ -26,9 +26,11 @@ library:
   source-dirs: src
   dependencies:
     - text
+    - containers
     - time
     - aeson
     - servant
+    - servant-server
     - wai
     - warp
 
