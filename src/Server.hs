@@ -16,14 +16,12 @@ import Domain
 import Users
 import Control.Monad.IO.Class (liftIO, MonadIO)
 
-type UserAPI = "users" :> Get '[JSON] [User]
+type API = "users" :> Get '[JSON] [User]
             :<|> "user" :> Capture "name" String :> Get '[JSON] (Maybe User)
-
-type API = UserAPI
-
-data SortBy = Age | Name deriving (Eq, Show)
+            :<|> "user" :> ReqBody '[JSON] User :> Post '[JSON] User
 
 instance ToJSON User
+instance FromJSON User
 
 getUsers :: Handler [User]
 getUsers = liftIO allUsers
@@ -31,12 +29,15 @@ getUsers = liftIO allUsers
 getUser :: String -> Handler (Maybe User)
 getUser = liftIO . userByName
 
+postUser :: User -> Handler User
+postUser = liftIO . addUser
+
 --boilerplate for phantom type (?)
 api :: Proxy API
 api = Proxy
 
 server :: Server API
-server = getUsers :<|> getUser
+server = getUsers :<|> getUser :<|> postUser
 
 app :: Application
 app = serve api server

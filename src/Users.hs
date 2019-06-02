@@ -1,6 +1,7 @@
 module Users(
     allUsers,
-    userByName
+    userByName,
+    addUser
   ) where
 
 import Data.Time.Calendar
@@ -24,3 +25,7 @@ allUsers = cached >>= fmap Map.elems . readIORef
 userByName :: String -> IO (Maybe User)
 userByName n = cached >>= fmap (Map.lookup n) . readIORef
 
+addUser :: User -> IO User
+addUser u@(User name _ _ _) = do
+  c <- cached
+  atomicModifyIORef' c (\c -> (Map.insert name u c, u))

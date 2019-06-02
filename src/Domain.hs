@@ -13,3 +13,4 @@ data User = User
   , email :: String
   , registration_date :: Day
   } deriving (Eq, Show, Generic)
+
