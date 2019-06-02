@@ -2,7 +2,7 @@
 {-# LANGUAGE TypeOperators   #-}
 {-# LANGUAGE DeriveGeneric #-}
 
-module Domain(User(..), CounterVal(..)) where
+module Domain(User(..)) where
 
 import GHC.Generics
 import Data.Time.Calendar
@@ -13,7 +13,3 @@ data User = User
   , email :: String
   , registration_date :: Day
   } deriving (Eq, Show, Generic)
-
-
-newtype CounterVal = CounterVal { getCounterVal :: Int }
-  deriving (Eq, Show, Generic)
