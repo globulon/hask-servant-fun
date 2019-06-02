@@ -4,7 +4,7 @@ module Users(
   ) where
 
 import Data.Time.Calendar
-import Domain
+import Domain(User(..))
 import Data.Map (Map, elems, fromList, lookup)
 import qualified Data.Map as Map
 import Data.IORef
@@ -23,3 +23,4 @@ allUsers = cached >>= fmap Map.elems . readIORef
 
 userByName :: String -> IO (Maybe User)
 userByName n = cached >>= fmap (Map.lookup n) . readIORef
+
