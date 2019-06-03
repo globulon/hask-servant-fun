@@ -11,15 +11,14 @@ import qualified Data.Map   as Map
 import           Domain     (User (..))
 
 type Users = Map String User
-
-type Cached a = IO (IORef a)
+type Cached a = IORef a
 
 newtype Environment = Environment
-  { users :: Cached Users
+  { users :: IO (Cached Users)
   }
 
 makeEnv :: Environment
 makeEnv = Environment makeUsers
 
-makeUsers :: Cached Users
+makeUsers :: IO (Cached Users)
 makeUsers = newIORef Map.empty

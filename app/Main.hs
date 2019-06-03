@@ -1,7 +1,7 @@
 module Main where
 
 import Server
-import Environment(makeEnv)
+import Environment(users, makeEnv)
 
 main :: IO ()
-main = startApp makeEnv
+main = startApp =<< users makeEnv

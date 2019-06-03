@@ -9,6 +9,6 @@ import Data.IORef
 import Algebras
 
 instance UserRepo IO where
-  allUsers env = users env >>= fmap Map.elems . readIORef
-  userByName env n = users env >>= fmap (Map.lookup n) . readIORef
-  addUser cached u@(User name  _ _) = users cached >>= (`modifyIORef` Map.insert name u)
+  allUsers = fmap elems . readIORef
+  userByName env n = fmap (Map.lookup n) . readIORef $ env
+  addUser env u@(User name  _ _) = modifyIORef' env (Map.insert name u)
