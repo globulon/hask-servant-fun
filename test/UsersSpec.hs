@@ -11,7 +11,9 @@ import Interpreters
 
 
 spec :: Spec
-spec = spec_add_user
+spec = do
+  spec_add_user
+  spec_delete_user
 
 spec_add_user :: Spec
 spec_add_user =
@@ -23,4 +25,17 @@ spec_add_user =
   where
     env = makeEnv
     usr = User "omd" "globulon@gmail.com" (fromGregorian 1971 8 28)
+
+spec_delete_user :: Spec
+spec_delete_user =
+  describe "delete user" $
+  it "should delete user" $ do
+    cache <- users env
+    _ <- addUser cache usr
+    _ <- dropUser cache "omd"
+    userByName cache "omd" >>= (`shouldBe` Nothing)
+  where
+    env = makeEnv
+    usr = User "omd" "globulon@gmail.com" (fromGregorian 1971 8 28)
+
 

@@ -9,15 +9,15 @@ in order to discover Haskell servant
 - [x] Add in memory cache using IORef
 - [x] Separate concerns
 - [x] Make handlers more visible
-- [ ] Create User
-- [ ] Delete User
+- [x] Create User
+- [x] Delete User
 - [ ] Generate IDs for management
-- [ ] Manages status codes versus _"business domain"_ behaviour
+- [ ] Makes status codes more meaningful 
 - [ ] separate error management
 
 ## Usage
 
-Make sure you have stack installed with eversion 1.9.+
+Make sure you have stack installed with version 1.9.+
 
 after applying 
 
@@ -43,5 +43,10 @@ curl http://localhost:8080/user/isaac
 
 ##### create a new user
 ```bash
-curl -d '{"email":"globulon@gmail.com","registration_date":"1971-08-28","age":47,"name":"OMD"}' -H "Content-Type: application/json" -X POST http://localhost:8080/user
+curl -d '{"email":"globulon@gmail.com","registration_date":"1971-08-28", "name":"omd"}' -H "Content-Type: application/json" -X POST http://localhost:8080/user
+```
+
+##### delete a user
+```bash
+curl -v -X DELETE localhost:8080/user/andrea
 ```
