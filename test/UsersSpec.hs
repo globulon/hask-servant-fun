@@ -12,4 +12,4 @@ spec =
     it "should not deliver unknown user" $
       userByName >=> (`shouldBe` Nothing) $ "unknown"
     it "should deliver known user" $
-      userByName  >=> (\n -> fmap name n `shouldBe` Just "Isaac Newton") $ "isaac"
+      userByName >=> (return . fmap name) >=> (`shouldBe` Just "Isaac Newton") $ "isaac"
