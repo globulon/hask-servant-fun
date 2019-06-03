@@ -15,6 +15,7 @@ import Servant.API
 import Domain
 import Users
 import Control.Monad.IO.Class (liftIO, MonadIO)
+import Environment
 
 type API = "users" :> Get '[JSON] [User]
             :<|> "user" :> Capture "name" String :> Get '[JSON] (Maybe User)
@@ -23,24 +24,24 @@ type API = "users" :> Get '[JSON] [User]
 instance ToJSON User
 instance FromJSON User
 
-getUsers :: Handler [User]
-getUsers = liftIO allUsers
+getUsers :: Environment -> Handler [User]
+getUsers = liftIO . allUsers
 
-getUser :: String -> Handler (Maybe User)
-getUser = liftIO . userByName
+getUser :: Environment -> String -> Handler (Maybe User)
+getUser env = liftIO . userByName env
 
-postUser :: User -> Handler ()
-postUser = liftIO . addUser
+postUser :: Environment -> User -> Handler ()
+postUser env = liftIO . addUser env
 
 --boilerplate for phantom type (?)
 api :: Proxy API
 api = Proxy
 
-server :: Server API
-server = getUsers :<|> getUser :<|> postUser
+server :: Environment -> Server API
+server env = getUsers env :<|> getUser env :<|> postUser env
 
-app :: Application
-app = serve api server
+app :: Environment -> Application
+app = serve api . server
 
-startApp :: IO ()
-startApp = run 8080 app
+startApp :: Environment -> IO ()
+startApp = run 8080 . app

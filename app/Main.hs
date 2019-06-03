@@ -1,6 +1,7 @@
 module Main where
 
 import Server
+import Environment(makeEnv)
 
 main :: IO ()
-main = startApp
+main = startApp makeEnv

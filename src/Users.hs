@@ -8,23 +8,14 @@ import Data.Time.Calendar
 import Domain(User(..))
 import Data.Map (Map, elems, fromList, lookup)
 import qualified Data.Map as Map
+import Environment(Users, Cached, Environment(..), makeEnv)
 import Data.IORef
 
-isaac :: User
-isaac = User "Isaac Newton" 372 "isaac@newton.co.uk" (fromGregorian 1683 3 1)
+allUsers :: Environment -> IO [User]
+allUsers env = users env >>= fmap Map.elems . readIORef
 
-albert :: User
-albert = User "Albert Einstein" 136 "ae@mc2.org" (fromGregorian 1905 12 1)
+userByName :: Environment -> String ->  IO (Maybe User)
+userByName env n = users env >>= fmap (Map.lookup n) . readIORef
 
-cached :: IO (IORef (Map String User))
-cached = newIORef (Map.fromList [("isaac",isaac), ("albert", albert)])
-
-allUsers :: IO [User]
-allUsers = cached >>= fmap Map.elems . readIORef
-
-userByName :: String -> IO (Maybe User)
-userByName n = cached >>= fmap (Map.lookup n) . readIORef
-
-addUser :: User -> IO ()
-addUser u@(User name _ _ _) =
-  cached >>= \c -> modifyIORef c (Map.insert name u)
+addUser :: Environment -> User -> IO ()
+addUser cached u@(User name  _ _) = users cached >>= (`modifyIORef` Map.insert name u)
