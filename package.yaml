@@ -55,5 +55,6 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - simple-user
+    - time
     - hspec
     - QuickCheck
