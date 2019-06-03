@@ -25,7 +25,6 @@ allUsers = cached >>= fmap Map.elems . readIORef
 userByName :: String -> IO (Maybe User)
 userByName n = cached >>= fmap (Map.lookup n) . readIORef
 
-addUser :: User -> IO User
-addUser u@(User name _ _ _) = do
-  c <- cached
-  atomicModifyIORef' c (\c -> (Map.insert name u c, u))
+addUser :: User -> IO ()
+addUser u@(User name _ _ _) =
+  cached >>= \c -> modifyIORef c (Map.insert name u)

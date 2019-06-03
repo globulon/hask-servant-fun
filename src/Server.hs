@@ -18,7 +18,7 @@ import Control.Monad.IO.Class (liftIO, MonadIO)
 
 type API = "users" :> Get '[JSON] [User]
             :<|> "user" :> Capture "name" String :> Get '[JSON] (Maybe User)
-            :<|> "user" :> ReqBody '[JSON] User :> Post '[JSON] User
+            :<|> "user" :> ReqBody '[JSON] User :> Post '[JSON] ()
 
 instance ToJSON User
 instance FromJSON User
@@ -29,7 +29,7 @@ getUsers = liftIO allUsers
 getUser :: String -> Handler (Maybe User)
 getUser = liftIO . userByName
 
-postUser :: User -> Handler User
+postUser :: User -> Handler ()
 postUser = liftIO . addUser
 
 --boilerplate for phantom type (?)
