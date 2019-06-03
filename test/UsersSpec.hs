@@ -1,6 +1,6 @@
 module UsersSpec where
 
-import Users
+import Interpreters
 import Domain(User(..))
 import Test.Hspec
 import Test.QuickCheck

@@ -13,9 +13,10 @@ import Network.Wai.Handler.Warp
 import Servant
 import Servant.API
 import Domain
-import Users
 import Control.Monad.IO.Class (liftIO, MonadIO)
 import Environment
+import Algebras
+import Interpreters
 
 type API = "users" :> Get '[JSON] [User]
             :<|> "user" :> Capture "name" String :> Get '[JSON] (Maybe User)
