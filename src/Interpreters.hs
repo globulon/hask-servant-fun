@@ -9,7 +9,7 @@ import Data.IORef
 import Algebras
 
 instance UserRepo IO where
-  allUsers = fmap elems . readIORef
-  userByName env n = fmap (Map.lookup n) . readIORef $ env
-  addUser env u@(User n  _ _) = modifyIORef' env (Map.insert n u)
-  dropUser env n = modifyIORef' env (Map.delete n)
+  allUsers = fmap elems . readIORef . users
+  userByName env n = fmap (Map.lookup n) . readIORef . users $ env
+  addUser env u@(User n  _ _) = modifyIORef' (users env) (Map.insert n u)
+  dropUser env n = modifyIORef' (users env) (Map.delete n)

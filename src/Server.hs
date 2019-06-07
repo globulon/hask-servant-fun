@@ -26,27 +26,27 @@ type API = "users" :> Get '[JSON] [User]
 instance ToJSON User
 instance FromJSON User
 
-getUsers :: Cached Users -> Handler [User]
+getUsers :: Environment -> Handler [User]
 getUsers = liftIO . allUsers
 
-getUser :: Cached Users -> String -> Handler (Maybe User)
+getUser :: Environment -> String -> Handler (Maybe User)
 getUser env = liftIO . userByName env
 
-postUser :: Cached Users -> User -> Handler ()
+postUser :: Environment-> User -> Handler ()
 postUser env = liftIO . addUser env
 
-deleteUser :: Cached Users -> String -> Handler ()
+deleteUser :: Environment -> String -> Handler ()
 deleteUser env = liftIO . dropUser env
 
 --boilerplate for phantom type (?)
 api :: Proxy API
 api = Proxy
 
-server :: Cached Users -> Server API
+server :: Environment -> Server API
 server env = getUsers env :<|> getUser env :<|> postUser env :<|> deleteUser env
 
-app :: Cached Users -> Application
+app :: Environment -> Application
 app = serve api . server
 
-startApp :: Cached Users -> IO ()
+startApp :: Environment -> IO ()
 startApp = run 8080 . app

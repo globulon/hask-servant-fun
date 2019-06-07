@@ -14,11 +14,11 @@ type Users = Map String User
 type Cached a = IORef a
 
 newtype Environment = Environment
-  { users :: IO (Cached Users)
+  { users :: Cached Users
   }
 
-makeEnv :: Environment
-makeEnv = Environment makeUsers
+makeEnv :: IO Environment
+makeEnv = fmap Environment makeUsers
 
 makeUsers :: IO (Cached Users)
 makeUsers = newIORef Map.empty
