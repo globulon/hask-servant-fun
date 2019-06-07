@@ -14,6 +14,7 @@ spec :: Spec
 spec = do
   spec_add_user
   spec_delete_user
+  spec_all_users
 
 spec_add_user :: Spec
 spec_add_user =
@@ -24,7 +25,6 @@ spec_add_user =
     userByName cache "omd" >>= (`shouldBe` Just usr)
   where
     env = makeEnv
-    usr = User "omd" "globulon@gmail.com" (fromGregorian 1971 8 28)
 
 spec_delete_user :: Spec
 spec_delete_user =
@@ -36,6 +36,18 @@ spec_delete_user =
     userByName cache "omd" >>= (`shouldBe` Nothing)
   where
     env = makeEnv
-    usr = User "omd" "globulon@gmail.com" (fromGregorian 1971 8 28)
 
 
+spec_all_users :: Spec
+spec_all_users =
+  describe "all users" $ do
+    it "should send no users" $
+      makeEnv >>= allUsers >>= (`shouldBe` [])
+    it "should send a created user" $ do
+      e <- makeEnv
+      _ <- addUser e usr
+      userByName e "omd" >>= (`shouldBe` Just usr)
+
+
+usr :: User
+usr = User "omd" "globulon@gmail.com" (fromGregorian 1971 8 28)
