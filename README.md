@@ -13,7 +13,7 @@ in order to discover Haskell servant
 - [x] Delete User
 - [ ] Add Auth
 - [x] Add HTTPS
-- [ ] Use custom monad
+- [x] Use custom monad
 - [ ] Add meaningful tests
 - [ ] Generate IDs for management
 - [ ] Makes status codes more meaningful 

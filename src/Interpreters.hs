@@ -7,11 +7,10 @@ import qualified Data.Map as Map
 import Environment(Users, Cached, Environment(..), makeEnv)
 import Data.IORef
 import Algebras
-import Control.Monad.Trans.Reader  (ReaderT, ask)
 import Control.Monad.Trans (lift)
 import Servant
 import Servant.API
-import Control.Monad.Trans.Reader (ReaderT(..), mapReaderT)
+import Control.Monad.Trans.Reader (ReaderT(..), mapReaderT, ask)
 import Control.Monad.IO.Class (liftIO, MonadIO)
 
 

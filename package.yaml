@@ -58,6 +58,8 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - simple-user
+    - mtl
+    - transformers
     - time
     - hspec
     - QuickCheck
