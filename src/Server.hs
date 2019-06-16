@@ -18,6 +18,7 @@ import Control.Monad.IO.Class (liftIO, MonadIO)
 import Environment
 import Algebras
 import Interpreters
+import Control.Monad.Trans.Reader (ReaderT(..), mapReaderT)
 
 type API = "users" :> Get '[JSON] [User]
             :<|> "user" :> Capture "name" String :> Get '[JSON] (Maybe User)
@@ -27,31 +28,31 @@ type API = "users" :> Get '[JSON] [User]
 instance ToJSON User
 instance FromJSON User
 
-getUsers :: Environment -> Handler [User]
-getUsers = liftIO . allUsers
+type AppM = ReaderT Environment Handler
 
-getUser :: Environment -> String -> Handler (Maybe User)
-getUser env = liftIO . userByName env
+getUsers :: AppM [User]
+getUsers = mapReaderT liftIO allUsers
 
-postUser :: Environment-> User -> Handler ()
-postUser env = liftIO . addUser env
+getUser :: String -> AppM (Maybe User)
+getUser = mapReaderT liftIO . userByName
 
-deleteUser :: Environment -> String -> Handler ()
-deleteUser env = liftIO . dropUser env
+postUser :: User -> AppM ()
+postUser = mapReaderT liftIO . addUser
 
---boilerplate for phantom type (?)
-api :: Proxy API
-api = Proxy
+deleteUser :: String -> AppM ()
+deleteUser = mapReaderT liftIO . dropUser
 
-server :: Environment -> Server API
-server env = getUsers env :<|> getUser env :<|> postUser env :<|> deleteUser env
+server :: ServerT API AppM
+server = getUsers :<|> getUser :<|> postUser :<|> deleteUser
+
+nt :: Environment -> AppM a -> Handler a
+nt s x = runReaderT x s
 
 app :: Environment -> Application
-app = serve api . server
+app env = serve api $ hoistServer api (nt env) server
+  where api = Proxy :: Proxy API
 
 startApp :: Environment -> IO ()
 startApp = runTLS tlsOpts warpOpts . app
   where tlsOpts = tlsSettings "certs/cert.pem" "certs/key.pem"
         warpOpts = setPort 8080 defaultSettings
-
-
