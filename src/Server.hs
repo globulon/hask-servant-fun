@@ -30,20 +30,8 @@ instance FromJSON User
 
 type AppM = ReaderT Environment Handler
 
-getUsers :: AppM [User]
-getUsers = mapReaderT liftIO allUsers
-
-getUser :: String -> AppM (Maybe User)
-getUser = mapReaderT liftIO . userByName
-
-postUser :: User -> AppM ()
-postUser = mapReaderT liftIO . addUser
-
-deleteUser :: String -> AppM ()
-deleteUser = mapReaderT liftIO . dropUser
-
 server :: ServerT API AppM
-server = getUsers :<|> getUser :<|> postUser :<|> deleteUser
+server = allUsers :<|> userByName :<|> addUser :<|> dropUser
 
 nt :: Environment -> AppM a -> Handler a
 nt s x = runReaderT x s

@@ -9,6 +9,10 @@ import Data.IORef
 import Algebras
 import Control.Monad.Trans.Reader  (ReaderT, ask)
 import Control.Monad.Trans (lift)
+import Servant
+import Servant.API
+import Control.Monad.Trans.Reader (ReaderT(..), mapReaderT)
+import Control.Monad.IO.Class (liftIO, MonadIO)
 
 
 instance UserRepo IO where
@@ -27,3 +31,10 @@ instance UserRepo IO where
   dropUser n = do
     Environment { users = us } <- ask
     lift (modifyIORef' us (Map.delete n))
+
+
+instance UserRepo Handler where
+  allUsers = mapReaderT liftIO allUsers
+  userByName = mapReaderT liftIO . userByName
+  addUser = mapReaderT liftIO . addUser
+  dropUser = mapReaderT liftIO . dropUser
