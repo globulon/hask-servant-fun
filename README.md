@@ -11,42 +11,45 @@ in order to discover Haskell servant
 - [x] Make handlers more visible
 - [x] Create User
 - [x] Delete User
+- [ ] Add Auth
+- [x] Add HTTPS
+- [ ] Use custom monad
+- [ ] Add meaningful tests
 - [ ] Generate IDs for management
 - [ ] Makes status codes more meaningful 
 - [ ] separate error management
+- [ ] Add doc
+
 
 ## Usage
 
 Make sure you have stack installed with version 1.9.+
-
-after applying 
-
-```bash
-stack setup
-```
-
-execute with 
+Generate the certificates using the script `certs/gen_certs.sh` 
 
 ```bash
-stack run
+stack clean && stack setup && stack run
 ```
+
+Provided that the `certs` directory contains the certs you generated you can
+apply the following commands
+
 
 ##### Get all users
 ```bash
-curl http://localhost:8080/users
+curl --cacert certs/cert.pem https://localhost:8080/users
 ```
 
 ##### Get users by name (waiting for ID)
 ```bash
-curl http://localhost:8080/user/isaac
+curl --cacert certs/cert.pem https://localhost:8080/user/isaac
 ```
 
 ##### create a new user
 ```bash
-curl -d '{"email":"globulon@gmail.com","registration_date":"1971-08-28", "name":"omd"}' -H "Content-Type: application/json" -X POST http://localhost:8080/user
+curl --cacert certs/cert.pem -d '{"email":"globulon@gmail.com","registration_date":"1971-08-28", "name":"omd"}' -H "Content-Type: application/json" -X POST https://localhost:8080/user
 ```
 
 ##### delete a user
 ```bash
-curl -v -X DELETE localhost:8080/user/andrea
+curl -cacert certs/cert.pem -v -X DELETE https://localhost:8080/user/andrea
 ```

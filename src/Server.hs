@@ -10,6 +10,7 @@ import Data.Aeson
 import Data.Aeson.TH
 import Network.Wai
 import Network.Wai.Handler.Warp
+import Network.Wai.Handler.WarpTLS
 import Servant
 import Servant.API
 import Domain
@@ -49,4 +50,8 @@ app :: Environment -> Application
 app = serve api . server
 
 startApp :: Environment -> IO ()
-startApp = run 8080 . app
+startApp = runTLS tlsOpts warpOpts . app
+  where tlsOpts = tlsSettings "certs/cert.pem" "certs/key.pem"
+        warpOpts = setPort 8080 defaultSettings
+
+

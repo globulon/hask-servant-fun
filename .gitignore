@@ -1,3 +1,6 @@
 .stack-work/
 simple-user.cabal
 *~
+certs/*pem
+certs/*csr
+

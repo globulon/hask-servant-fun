@@ -33,6 +33,7 @@ library:
     - servant-server
     - wai
     - warp
+    - warp-tls
 
 executables:
   simple-user-exe:
