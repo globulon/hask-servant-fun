@@ -1,3 +1,5 @@
+{-# LANGUAGE MultiParamTypeClasses #-}
+
 module Interpreters(UserRepo(..)) where
 
 import Data.Time.Calendar
@@ -12,27 +14,30 @@ import Servant
 import Servant.API
 import Control.Monad.Trans.Reader (ReaderT(..), mapReaderT, ask)
 import Control.Monad.IO.Class (liftIO, MonadIO)
+import Control.Monad.Trans.Except
+import Data.Maybe
 
+data UserError = UserNotFound String | UserConflict String deriving (Eq, Show)
 
-instance UserRepo IO where
+instance UserRepo UserError IO where
   allUsers = do
     Environment { users = us } <- ask
-    lift (fmap elems . readIORef $ us)
+    liftIO (fmap elems . readIORef $ us)
 
   userByName s = do
     Environment { users = us } <- ask
-    lift (fmap (Map.lookup s) . readIORef $ us)
+    ExceptT { fmap ((fromMaybe (throwE UserNotFound)) . fmap Right (Map.lookup s)) . readIORef $ us }
 
   addUser u@User { name = n }  = do
-      Environment { users = us } <- ask
-      lift (modifyIORef' us (Map.insert n u))
+    Environment { users = us } <- ask
+    liftIO (modifyIORef' us (Map.insert n u))
 
   dropUser n = do
     Environment { users = us } <- ask
-    lift (modifyIORef' us (Map.delete n))
+    liftIO (modifyIORef' us (Map.delete n))
 
 
-instance UserRepo Handler where
+instance UserRepo UserError Handler where
   allUsers = mapReaderT liftIO allUsers
   userByName = mapReaderT liftIO . userByName
   addUser = mapReaderT liftIO . addUser

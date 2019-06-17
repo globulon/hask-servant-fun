@@ -1,13 +1,15 @@
+{-# LANGUAGE MultiParamTypeClasses #-}
+
 module Algebras(UserRepo(..)) where
 
 import Domain(User(..))
 import Environment(Environment(..), Users(..), Cached)
 import Control.Monad.Trans.Reader  (ReaderT)
+import Control.Monad.Except
 
-
-class UserRepo m where
-  allUsers :: ReaderT Environment  m [User]
-  userByName :: String -> ReaderT Environment  m (Maybe User)
-  addUser :: User -> ReaderT Environment m ()
-  dropUser :: String -> ReaderT Environment m ()
+class (Monad m) => UserRepo e m where
+  allUsers :: ReaderT Environment  (ExceptT e m) [User]
+  userByName :: String -> ReaderT Environment (ExceptT e m) (Maybe User)
+  addUser :: User -> ReaderT Environment (ExceptT e m) ()
+  dropUser :: String -> ReaderT Environment (ExceptT e m) ()
   {-# MINIMAL allUsers, userByName, addUser, dropUser #-}
