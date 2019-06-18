@@ -1,7 +1,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE DeriveGeneric #-}
 
-module Interpreters(UserRepo(..), UserError(..), UserIO) where
+module Interpreters(UserRepo(..), UserError(..), UserIO, ErrorHandler(..)) where
 
 import Data.Time.Calendar
 import Domain(User(..))
@@ -16,9 +16,12 @@ import Control.Monad.IO.Class (liftIO, MonadIO)
 import Control.Monad.Trans.Except
 import Data.Maybe
 import GHC.Generics
-
+import ErrorHandling(ErrorHandler(..), JSONError(..), toHttpErr, jsonErr404, jsonErr409)
+import Servant
+import Servant.API
 
 data UserError = UserNotFound String | UserConflict String deriving (Eq, Show, Generic)
+
 type UserIO = ReaderT Environment (ExceptT UserError IO)
 
 instance UserRepo UserError IO where
@@ -39,3 +42,9 @@ instance UserRepo UserError IO where
   dropUser n = do
     Environment { users = us } <- ask
     liftIO (modifyIORef' us (Map.delete n))
+
+
+instance ErrorHandler UserError IO where
+  convertErr (UserNotFound s) = jsonErr404 { title = "Missing User" , detail = s }
+  convertErr (UserConflict s) = jsonErr409 { title = "Existing User" , detail = s }
+  handleErr x                 = Handler { runHandler' = withExceptT (toHttpErr . convertErr) x }

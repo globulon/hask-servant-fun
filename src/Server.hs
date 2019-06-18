@@ -17,34 +17,27 @@ import Domain
 import Control.Monad.IO.Class (liftIO, MonadIO)
 import Environment
 import Algebras
-import Interpreters(UserRepo(..), UserError(..), UserIO)
+import Interpreters(UserRepo(..), UserError(..), UserIO, ErrorHandler(..))
 import Control.Monad.Trans.Reader (ReaderT(..), mapReaderT)
 import Control.Monad.Trans.Except
-import Http
+import ErrorHandling
+
+instance ToJSON User
+instance FromJSON User
 
 type API = "users" :> Get '[JSON] [User]
             :<|> "user" :> Capture "name" String :> Get '[JSON] User
             :<|> "user" :> ReqBody '[JSON] User :> Post '[JSON] ()
             :<|> "user" :> Capture "name" String :> Delete '[JSON] ()
 
-instance ToJSON User
-instance FromJSON User
-instance ToJSON UserError
-
 server :: ServerT API UserIO
 server = allUsers :<|> userByName :<|> addUser :<|> dropUser
 
--- ExceptT ServantErr IO
-
-nt :: Environment -> UserIO a -> Handler a
-nt env x =   Handler { runHandler' = withExceptT convertUserErr (runReaderT x env) }
-
-convertUserErr :: UserError -> ServantErr
-convertUserErr (UserNotFound s) = toHttpErr jsonErr404 { title = "Missing User" , detail = s }
-convertUserErr (UserConflict s) = toHttpErr jsonErr404 { title = "Existing User" , detail = s }
+transform :: Environment -> UserIO a -> Handler a
+transform env x = handleErr ( runReaderT x env )
 
 app :: Environment -> Application
-app env = serve api $ hoistServer api (nt env) server
+app env = serve api . hoistServer api (transform env) $ server
   where api = Proxy :: Proxy API
 
 startApp :: Environment -> IO ()
