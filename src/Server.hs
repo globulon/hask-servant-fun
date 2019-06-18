@@ -17,24 +17,31 @@ import Domain
 import Control.Monad.IO.Class (liftIO, MonadIO)
 import Environment
 import Algebras
-import Interpreters
+import Interpreters(UserRepo(..), UserError(..), UserIO)
 import Control.Monad.Trans.Reader (ReaderT(..), mapReaderT)
+import Control.Monad.Trans.Except
+import Http
 
 type API = "users" :> Get '[JSON] [User]
-            :<|> "user" :> Capture "name" String :> Get '[JSON] (Maybe User)
+            :<|> "user" :> Capture "name" String :> Get '[JSON] User
             :<|> "user" :> ReqBody '[JSON] User :> Post '[JSON] ()
             :<|> "user" :> Capture "name" String :> Delete '[JSON] ()
 
 instance ToJSON User
 instance FromJSON User
+instance ToJSON UserError
 
-type AppM = ReaderT Environment Handler
-
-server :: ServerT API AppM
+server :: ServerT API UserIO
 server = allUsers :<|> userByName :<|> addUser :<|> dropUser
 
-nt :: Environment -> AppM a -> Handler a
-nt s x = runReaderT x s
+-- ExceptT ServantErr IO
+
+nt :: Environment -> UserIO a -> Handler a
+nt env x =   Handler { runHandler' = withExceptT convertUserErr (runReaderT x env) }
+
+convertUserErr :: UserError -> ServantErr
+convertUserErr (UserNotFound s) = toHttpErr jsonErr404 { title = "Missing User" , detail = s }
+convertUserErr (UserConflict s) = toHttpErr jsonErr404 { title = "Existing User" , detail = s }
 
 app :: Environment -> Application
 app env = serve api $ hoistServer api (nt env) server

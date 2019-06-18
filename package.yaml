@@ -36,6 +36,8 @@ library:
     - warp-tls
     - mtl
     - transformers
+    - bytestring
+    - case-insensitive
 
 executables:
   simple-user-exe:
