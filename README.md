@@ -13,12 +13,43 @@ in order to discover Haskell servant
 - [x] Delete User
 - [ ] Add Auth
 - [x] Add HTTPS
-- [x] Use custom monad
+- [ ] Use custom monad
+    - [x] Add error ExceptT
+    - [ ] Try to combine errors 
 - [ ] Add meaningful tests
 - [ ] Generate IDs for management
 - [ ] Makes status codes more meaningful 
+    - [x] Add error handling mechanism
+    - [ ] Add default route error management
 - [ ] separate error management
 - [ ] Add doc
+
+
+## HTTP error management
+
+##### Error channeling
+
+The `Errorhandling` module introduces an error handling mechanism
+
+```haskell
+class (Monad m) => ErrorHandler e m | e -> m where
+  convertErr :: e -> JSONError
+  handleErr  :: ExceptT e m x -> Handler x
+  {-# MINIMAL convertErr, handleErr #-}
+```
+
+combined with the with the `hoistServer` command it facilitates the conversion 
+of service errors into Servant `Handler` errors.
+
+The expectation is to use services using error management as part of the effect
+
+`ExceptT e m`
+
+In the case of an effect like 
+
+`ExceptT e IO` the conversion to `Handler` is a natural transformation given by 
+
+`  handleErr x = Handler { runHandler' = withExceptT (toHttpErr . convertErr) x }`
 
 
 ## Usage
@@ -32,7 +63,7 @@ stack clean && stack setup && stack run
 
 Provided that the `certs` directory contains the certs you generated you can
 apply the following commands
-
+x
 
 ##### Get all users
 ```bash
