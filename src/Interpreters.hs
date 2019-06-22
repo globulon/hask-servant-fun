@@ -4,12 +4,12 @@
 module Interpreters(UserRepo(..), UserError(..), UserIO, ErrorHandler(..)) where
 
 import Data.Time.Calendar
-import Domain(User(..))
+import Domain(User(..), Subscription(..))
 import Data.Map (Map, elems, fromList, lookup, insert, delete)
 import qualified Data.Map as Map
 import Environment(Users, Cached, Environment(..), makeEnv)
 import Data.IORef
-import Algebras
+import Algebras(UserRepo(..), SubsRepo(..))
 import Control.Monad.Trans (lift)
 import Control.Monad.Trans.Reader (ReaderT(..), mapReaderT, ask)
 import Control.Monad.IO.Class (liftIO, MonadIO)
@@ -20,6 +20,9 @@ import ErrorHandling(ErrorHandler(..), JSONError(..), toHttpErr, jsonErr404, jso
 import Servant
 import Servant.API
 
+{-|
+  Users Management
+|-}
 data UserError = UserNotFound String | UserConflict String deriving (Eq, Show, Generic)
 
 type UserIO = ReaderT Environment (ExceptT UserError IO)
@@ -48,3 +51,12 @@ instance ErrorHandler UserError IO where
   convertErr (UserNotFound s) = jsonErr404 { title = "Missing User" , detail = s }
   convertErr (UserConflict s) = jsonErr409 { title = "Existing User" , detail = s }
   handleErr x                 = Handler { runHandler' = withExceptT (toHttpErr . convertErr) x }
+
+{-|
+  Subscription management
+|-}
+
+newtype SubsError = MissingSubs User deriving (Eq, Show, Generic)
+
+instance SubsRepo SubsError IO where
+  subsFor  = lift . throwE . MissingSubs
