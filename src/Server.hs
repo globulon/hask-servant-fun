@@ -24,11 +24,14 @@ import ErrorHandling
 
 instance ToJSON User
 instance FromJSON User
+instance ToJSON Subscription
 
-type API = "users" :> Get '[JSON] [User]
+type UserAPI = "users" :> Get '[JSON] [User]
             :<|> "user" :> Capture "name" String :> Get '[JSON] User
             :<|> "user" :> ReqBody '[JSON] User :> Post '[JSON] ()
             :<|> "user" :> Capture "name" String :> Delete '[JSON] ()
+
+type API = UserAPI
 
 server :: ServerT API UserIO
 server = allUsers :<|> userByName :<|> addUser :<|> dropUser

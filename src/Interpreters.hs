@@ -16,7 +16,7 @@ import Control.Monad.IO.Class (liftIO, MonadIO)
 import Control.Monad.Trans.Except
 import Data.Maybe
 import GHC.Generics
-import ErrorHandling(ErrorHandler(..), JSONError(..), toHttpErr, jsonErr404, jsonErr409)
+import ErrorHandling(ErrorHandler(..), JSONError(..), toHttpErr, jsonErr404, jsonErr409, jsonErr501)
 import Servant
 import Servant.API
 
@@ -56,7 +56,11 @@ instance ErrorHandler UserError IO where
   Subscription management
 |-}
 
-newtype SubsError = MissingSubs User deriving (Eq, Show, Generic)
+newtype SubsError = MissingSubs String deriving (Eq, Show, Generic)
 
 instance SubsRepo SubsError IO where
   subsFor  = lift . throwE . MissingSubs
+
+instance ErrorHandler SubsError IO where
+  convertErr (MissingSubs n) = jsonErr501 { title = "Subscriptions not found for" ++ n, detail = "Service missing"}
+  handleErr x                = Handler { runHandler' = withExceptT (toHttpErr . convertErr) x }

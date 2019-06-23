@@ -8,7 +8,8 @@ module ErrorHandling(
   JSONError(..),
   toHttpErr,
   jsonErr404,
-  jsonErr409) where
+  jsonErr409,
+  jsonErr501) where
 
 import Servant
 import Servant.API
@@ -33,6 +34,9 @@ jsonErr404 = JSONError { statusCode = 404 , title = "", detail = "" }
 jsonErr409 :: JSONError
 jsonErr409 = JSONError { statusCode = 409 , title = "", detail = "" }
 
+jsonErr501 :: JSONError
+jsonErr501 = JSONError { statusCode = 501 , title = "", detail = "" }
+
 toHttpErr :: JSONError -> ServantErr
 toHttpErr jsonError = err { errBody = jsonBody, errHeaders = [jsonHeader]}
   where
@@ -45,6 +49,8 @@ matchError :: Int -> ServantErr
 matchError 400 = err400
 matchError 404 = err404
 matchError 409 = err409
+matchError 501 = err501
+
 
 class (Monad m) => ErrorHandler e m | e -> m where
   convertErr :: e -> JSONError

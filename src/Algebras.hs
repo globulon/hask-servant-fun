@@ -16,5 +16,5 @@ class (Monad m) => UserRepo e m where
 
 
 class (Monad m) => SubsRepo e m where
-  subsFor :: User -> ReaderT Environment (ExceptT e m) [Subscription]
+  subsFor :: String -> ReaderT Environment (ExceptT e m) [Subscription]
   {-# MINIMAL subsFor #-}
